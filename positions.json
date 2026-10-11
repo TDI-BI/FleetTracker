@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-11T19:30:36Z",
+  "updated": "2026-10-11T23:10:24Z",
   "vessels": {
     "gyre": {
       "lat": 7,
@@ -31,7 +31,7 @@
       "sog": 0,
       "cog": 254.3,
       "status": "Moored",
-      "fixTime": "2026-10-11T19:29:52Z",
+      "fixTime": "2026-10-11T23:08:56Z",
       "dest": "SWS"
     },
     "miss-emma-mccall": {
