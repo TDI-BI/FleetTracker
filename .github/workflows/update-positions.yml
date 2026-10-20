@@ -56,7 +56,7 @@ jobs:
       - name: Package site
         run: |
           mkdir -p _site
-          cp -r index.html positions.json img _site/
+          cp -r index.html positions.json img data css _site/
 
       - uses: actions/upload-pages-artifact@v3
         with:
