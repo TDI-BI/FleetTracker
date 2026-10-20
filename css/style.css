@@ -16,7 +16,6 @@ img {
   --land: #b4c0ce;
   --land-edge: #9dabbb;
   --border: #f4f6f8;
-  --state: #dfe5ec;
   --lbl-country: #14263a;
   --lbl-region: #6f7f91;
   --lbl-sea: #6b7b8d;
@@ -49,7 +48,6 @@ img {
     --land: #2d3a48;
     --land-edge: #3b4a5a;
     --border: #51647a;
-    --state: #415266;
     --lbl-country: #e4ebf2;
     --lbl-region: #8fa0b2;
     --lbl-sea: #7f92a6;
@@ -204,12 +202,6 @@ a:focus-visible,
   stroke: var(--border);
   stroke-width: 1.1;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-.states {
-  fill: none;
-  stroke: var(--state);
-  stroke-width: 0.7;
   vector-effect: non-scaling-stroke;
 }
 .pl {

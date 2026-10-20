@@ -133,26 +133,16 @@ const svg = d3.select('#map'),
   mkG = svg.append('g');
 const proj = d3.geoMercator().scale(1).translate([0, 0]);
 const path = d3.geoPath(proj);
-/* basemap: world countries + US states (TopoJSON), drawn once they arrive */
+/* basemap: world countries (TopoJSON), drawn once it arrives */
 async function loadBasemap() {
-  const [topo, stTopo] = await Promise.all(
-    ['data/countries.topo.json', 'data/states.topo.json'].map(u =>
-      fetch(u).then(r => {
-        if (!r.ok) throw new Error(`${u}: ${r.status}`);
-        return r.json();
-      })
-    )
-  );
+  const r = await fetch('data/countries.topo.json');
+  if (!r.ok) throw new Error(`countries.topo.json: ${r.status}`);
+  const topo = await r.json();
   landG
     .selectAll('path')
     .data(topojson.feature(topo, topo.objects.countries).features)
     .join('path')
     .attr('class', 'land')
-    .attr('d', path);
-  landG
-    .append('path')
-    .datum(topojson.mesh(stTopo, stTopo.objects.states, (a, b) => a !== b))
-    .attr('class', 'states')
     .attr('d', path);
   landG
     .append('path')

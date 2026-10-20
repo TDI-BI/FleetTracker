@@ -6,7 +6,7 @@ A live map of the TDI-Brooks research vessels (RV Nautilus, RV Gyre, RV Proteus,
 
 - `index.html` is the page markup. Styles are in `css/style.css` and the app is `scripts/app.js`.
 - On load, and again every 5 minutes, the page requests vessel positions from the internal `getFleetPositions` API (`POSITIONS_API` in `scripts/app.js`).
-- The basemap (world countries and US states) is TopoJSON in `data/`, drawn with d3 and topojson-client from CDNs.
+- The basemap (world countries) is TopoJSON in `data/countries.topo.json`, drawn with d3 and topojson-client from CDNs. Keep it minified; `.prettierignore` stops editors reformatting it.
 - The page marks a position older than 6 hours "Aging" and older than 2 days "Stale".
 - Clicking a ship opens its page on tdi-bi.com.
 
