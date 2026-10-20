@@ -57,6 +57,8 @@ jobs:
         run: |
           mkdir -p _site
           cp -r index.html positions.json img data css _site/
+          mkdir -p _site/scripts
+          cp scripts/app.js _site/scripts/
 
       - uses: actions/upload-pages-artifact@v3
         with:
