@@ -1,73 +1,83 @@
 # TDI-Brooks Fleet Tracker
 
-A live map of the TDI-Brooks research vessels (RV Nautilus, RV Gyre, RV Proteus, RV Brooks McCall, RV Miss Emma McCall). It is a static site, built to be embedded on tdi-bi.com.
+Live map of the TDI-Brooks research vessels. A static site with no build step, embedded on tdi-bi.com.
 
-## How it works
+## Architecture
 
-- `index.html` is the page markup. Styles are in `css/style.css` and the app is `scripts/app.js`.
-- On load, and again every 5 minutes, the page requests vessel positions from the internal `getFleetPositions` API (`POSITIONS_API` in `scripts/app.js`).
-- The basemap (world countries) is TopoJSON in `data/countries.topo.json`, drawn with d3 and topojson-client from CDNs. It is generated; see [Map data](#map-data).
-- The page marks a position older than 6 hours "Aging" and older than 2 days "Stale".
-- Clicking a ship opens its page on tdi-bi.com.
+```
+index.html                         markup
+css/style.css                      styles (light/dark via CSS variables)
+scripts/app.js                     the app: map, vessel list, positions feed
+data/countries.topo.json           basemap, loaded by the page (generated)
+data/countries.original.topo.json  full-detail basemap source
+img/                               vessel photos
+tools/                             map compression script (dev only)
+```
 
-## Running locally
+- d3 and topojson-client load from CDNs and draw the map as SVG (Mercator).
+- Positions come from the API on load and every 5 minutes (`REFRESH_MS`).
+- Markers are tagged Aging after 6 h and Stale after 2 days.
+- Zoom is capped at port level (`MAX_ZOOM`).
 
-Browsers block `fetch()` on `file://` pages, so serve the folder:
+Most edits happen at the top of `scripts/app.js`:
+- `FLEET`: vessels, IDs, photos, links
+- `PLACES`: map labels
+- `POSITIONS_API`, `REFRESH_MS`, `MAX_ZOOM`
+
+## Development
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Then open http://localhost:8000/ (or http://localhost:8000/#embed for the embed view). The positions API must also be running at the URL in `POSITIONS_API`.
+Open http://localhost:8000/ (append `#embed` for the embed view). A server is needed because `fetch()` doesn't work on `file://` pages. Local pages call the live API; to use a local one, temporarily set `POSITIONS_API` to `http://localhost:1902/getFleetPositions`.
 
-## Positions API
+## API
 
-`GET /getFleetPositions?sites=<site>,<site>,...` returns one entry per vessel:
-
-```json
-{
-  "brooks": { "pos": { "latitude": 28.9792, "longitude": -95.4167 }, "time": "2026-10-20T20:10:07Z" }
-}
+```
+GET https://todo.tdi-bi.com/getFleetPositions?sites=nautshipdash,gyreshipdash,...
 ```
 
-The `sites` list is built from each vessel's `site` in `FLEET`, and each response key is matched to a vessel by its `api` field. The API must send CORS headers allowing the page's origin.
+```json
+{ "brooks": { "pos": { "latitude": 28.9792, "longitude": -95.4167 }, "time": "2026-10-20T20:10:07Z" } }
+```
+
+- Each vessel's `site` in `FLEET` builds the `sites` list, and its `api` field matches the response key.
+- The route must be HTTPS (the site is) and send CORS headers.
+- Data comes from SharePoint and updates about every 5 minutes. Requests take about 1 s.
 
 ## Hosting
 
-GitHub Pages, deployed from the `main` branch: Repository → Settings → Pages → Build and deployment → Source: **Deploy from a branch** → `main`, `/ (root)`. Every push to `main` publishes the site.
+Any static host works: serve the repo root as-is. The page needs `index.html`, `css/`, `scripts/app.js`, `data/countries.topo.json` and `img/`.
 
-## Putting it on tdi-bi.com
+On GitHub Pages: Settings → Pages → Source: **Deploy from a branch** → `main`, `/ (root)`. Every push to `main` publishes.
 
-Add a Custom HTML block to the WordPress page and paste:
+## Embedding
+
+WordPress Custom HTML block:
 
 ```html
 <div style="position:relative;width:100%;height:clamp(380px,60vw,640px);border-radius:6px;overflow:hidden">
-  <iframe src="https://broussardbrandt.github.io/FleetTracker/#embed"
-          title="TDI-Brooks fleet positions"
-          style="position:absolute;inset:0;width:100%;height:100%;border:0"
-          loading="lazy"></iframe>
+  <iframe src="https://<site-url>/#embed" title="TDI-Brooks fleet positions"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy"></iframe>
 </div>
 ```
 
-The height scales with screen width: 640px on a desktop, about 380px on a phone.
+- `#embed` hides the header and vessel list, and needs Ctrl + scroll to zoom so the map doesn't hijack page scrolling.
+- Drop `#embed` to embed the full page.
+- A TDI domain (e.g. `fleet.tdi-bi.com`, set up as a CNAME to the host) keeps the embed URL stable if hosting changes.
 
-`#embed` shows the map on its own, without the header and vessel list, and needs Ctrl + scroll to zoom so it doesn't hijack scrolling on the website. Leave `#embed` off to embed the full page with the vessel list.
+## Map compression
 
-To serve it from a TDI address such as `fleet.tdi-bi.com`: add a CNAME DNS record pointing `fleet` to `<your-account>.github.io`, then enter the domain under Settings → Pages → Custom domain.
-
-## Map data
-
-`data/countries.topo.json` is a simplified copy of `data/countries.original.topo.json` (the full-detail source, 221 KB gzipped vs 71 KB). Don't edit it by hand; regenerate it:
+`data/countries.topo.json` is generated from the original by `tools/shrink-map.mjs`: 71 KB gzipped, down from 221 KB.
 
 ```sh
 cd tools && npm install && npm run shrink-map
 ```
 
-`tools/shrink-map.mjs` keeps 25% of coastline points, keeps every point of islands under 300 km² so small islands like Roatán don't vanish, and snaps coordinates to a coarser grid. The lost detail is invisible because zoom is capped at port level (`MAX_ZOOM` in `scripts/app.js`). The `tools/` dependencies are only needed for this; the site itself has no build step. Both map files are kept minified, and `.prettierignore` stops editors reformatting them.
+- Keeps 25% of coastline points (`KEEP`).
+- Keeps every point of islands under 300 km² (`PROTECT_KM2`), so places like Roatán don't vanish.
+- Snaps coordinates to a 10,000-step grid (`QUANTIZATION`).
+- The lost detail doesn't show, because zoom is capped at port level.
 
-## Changing things
-
-- **Vessel details, MMSIs, photos, TDI links, API keys:** the `FLEET` list near the top of `scripts/app.js`. Photos are in `img/`.
-- **Positions API URL:** `POSITIONS_API` in `scripts/app.js`.
-- **Map place names:** the `PLACES` list in `scripts/app.js`.
-- **Refresh interval:** `REFRESH_MS` in `scripts/app.js`.
+Don't edit the generated file by hand. Both map files stay minified, and `.prettierignore` stops editors reformatting them. The script uses d3's topojson tools; mapshaper turns some countries inside out.

@@ -620,7 +620,7 @@ renderList();
 requestAnimationFrame(() => fitFleet());
 
 /* ---------- positions feed: internal getFleetPositions API ---------- */
-const POSITIONS_API = 'http://localhost:1902/getFleetPositions';
+const POSITIONS_API = 'https://todo.tdi-bi.com/getFleetPositions';
 const REFRESH_MS = 5 * 60 * 1000;
 /* API response: { <api key>: { pos: { latitude, longitude }, time } } -> pos[<fleet id>] */
 function readFleetPositions(j) {
