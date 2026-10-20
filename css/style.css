@@ -13,7 +13,6 @@ img {
 /* Layout: full-height chart table — paper nautical chart (day) / ECDIS dusk (dark), vessel list docked right, stacks under the chart on phones */
 :root {
   --sea: #eceef1;
-  --sea-deep: #e3e6ea;
   --land: #b4c0ce;
   --land-edge: #9dabbb;
   --border: #f4f6f8;
@@ -23,7 +22,6 @@ img {
   --lbl-sea: #6b7b8d;
   --lbl-city: #1c2c3c;
   --vessel-lbl: #0f2a3d;
-  --grid: #9fb8c6;
   --ink: #15303f;
   --ink-2: #4b6474;
   --panel: #f7f5ee;
@@ -46,9 +44,8 @@ img {
   --f-data: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root {
     --sea: #0f161d;
-    --sea-deep: #0b1117;
     --land: #2d3a48;
     --land-edge: #3b4a5a;
     --border: #51647a;
@@ -58,7 +55,6 @@ img {
     --lbl-sea: #7f92a6;
     --lbl-city: #d5dee7;
     --vessel-lbl: #f2f6f9;
-    --grid: #23394a;
     --ink: #e3ecf1;
     --ink-2: #93a9b7;
     --panel: #111f29;
@@ -78,38 +74,6 @@ img {
     --card-eyebrow: #5fe0ee;
     color-scheme: dark;
   }
-}
-:root[data-theme='dark'] {
-  --sea: #0f161d;
-  --sea-deep: #0b1117;
-  --land: #2d3a48;
-  --land-edge: #3b4a5a;
-  --border: #51647a;
-  --state: #415266;
-  --lbl-country: #e4ebf2;
-  --lbl-region: #8fa0b2;
-  --lbl-sea: #7f92a6;
-  --lbl-city: #d5dee7;
-  --vessel-lbl: #f2f6f9;
-  --grid: #23394a;
-  --ink: #e3ecf1;
-  --ink-2: #93a9b7;
-  --panel: #111f29;
-  --line: #23394a;
-  --accent: #ff8a5c;
-  --focus: #6fb4ff;
-  --ok: #5fcf86;
-  --warn: #e8b447;
-  --bad: #ff7a6e;
-  --v1: #ff8a5c;
-  --v2: #6fb4ff;
-  --v3: #c79bf0;
-  --v4: #4fd3bd;
-  --v5: #f0c05a;
-  --card-bg: #1d3d53;
-  --card-fg: #eef4f7;
-  --card-eyebrow: #5fe0ee;
-  color-scheme: dark;
 }
 html,
 body {
@@ -296,17 +260,6 @@ a:focus-visible,
   stroke: var(--land);
   stroke-width: 1.5;
 }
-.grat {
-  fill: none;
-  stroke: var(--grid);
-  stroke-width: 0.6;
-  stroke-dasharray: 2 3;
-  vector-effect: non-scaling-stroke;
-}
-.grat-lbl {
-  font: 10px var(--f-data);
-  fill: var(--ink-2);
-}
 .mk-label {
   font: 700 15px var(--f-display);
   letter-spacing: 0.05em;
@@ -324,6 +277,10 @@ a:focus-visible,
 }
 .mk:focus-visible {
   outline: 2px solid var(--focus);
+}
+.mk .body {
+  stroke: var(--sea);
+  stroke-width: 1.2;
 }
 .mk .halo {
   fill: none;
@@ -393,14 +350,11 @@ a:focus-visible,
   justify-self: end;
   align-self: center;
 }
-.vessel.has-thumb {
-  grid-template-columns: auto 1fr auto;
-}
-.vessel.has-thumb > :not(.swatch):not(.thumb) {
+.vessel > :not(.swatch):not(.thumb) {
   grid-column: 2 / span 2;
 }
-.vessel.has-thumb > .vname,
-.vessel.has-thumb > .pos {
+.vessel > .vname,
+.vessel > .pos {
   grid-column: 2;
 }
 .scale-note {
@@ -461,7 +415,7 @@ aside {
 }
 .vessel {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: 4px 12px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
@@ -514,7 +468,7 @@ aside {
 }
 .meta {
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: auto;
   justify-content: start;
   gap: 2px 16px;
   font-size: 0.8rem;
@@ -546,10 +500,6 @@ aside {
 .links a.tdi {
   font-weight: 600;
   color: var(--accent);
-}
-.note {
-  font-size: 0.78rem;
-  color: var(--warn);
 }
 .foot {
   padding: 12px 16px;

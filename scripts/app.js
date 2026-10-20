@@ -1,23 +1,22 @@
-if (location.hash === '#embed')
+const EMBED = location.hash === '#embed';
+if (EMBED) {
   document.documentElement.classList.add('embed');
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.documentElement.classList.contains('embed'))
-    document.getElementById('scaleNote').textContent = matchMedia(
-      '(pointer: coarse)'
-    ).matches
-      ? 'Drag to pan · pinch or +/− to zoom'
-      : 'Drag to pan · Ctrl + scroll or +/− to zoom';
-});
+  document.getElementById('scaleNote').textContent = matchMedia(
+    '(pointer: coarse)'
+  ).matches
+    ? 'Drag to pan · pinch or +/− to zoom'
+    : 'Drag to pan · Ctrl + scroll or +/− to zoom';
+}
 const FLEET = [
   {
     id: 'nautilus',
+    site: 'nautshipdash', // sites= param for getFleetPositions
+    api: 'nautilus', // key in the getFleetPositions response
     tdi: 'https://www.tdi-bi.com/r-v-nautilus/',
     name: 'RV Nautilus',
     mmsi: '577030000',
     imo: '9223708',
-    call: 'YJQA8',
     flag: 'Vanuatu',
-    loa: 75,
     short: 'RV NAUTILUS',
     c: '--v1',
     photo: 'img/nautilus.webp',
@@ -25,13 +24,13 @@ const FLEET = [
   },
   {
     id: 'gyre',
+    site: 'gyreshipdash', // sites= param for getFleetPositions
+    api: 'gyre', // key in the getFleetPositions response
     tdi: 'https://www.tdi-bi.com/r-v-gyre/',
     name: 'RV Gyre',
     mmsi: '577275000',
     imo: '7318999',
-    call: 'YJTX5',
     flag: 'Vanuatu',
-    loa: 55,
     short: 'RV GYRE',
     c: '--v2',
     photo: 'img/gyre.webp',
@@ -39,13 +38,13 @@ const FLEET = [
   },
   {
     id: 'proteus',
+    site: 'proteusshipdash', // sites= param for getFleetPositions
+    api: 'proteus', // key in the getFleetPositions response
     tdi: 'https://www.tdi-bi.com/r-v-proteus/',
     name: 'RV Proteus',
     mmsi: '577207000',
     imo: '7634290',
-    call: 'YJTP5',
     flag: 'Vanuatu',
-    loa: 49,
     short: 'RV PROTEUS',
     c: '--v3',
     photo: 'img/proteus.webp',
@@ -53,13 +52,13 @@ const FLEET = [
   },
   {
     id: 'brooks-mccall',
+    site: 'shipdash', // sites= param for getFleetPositions
+    api: 'brooks', // key in the getFleetPositions response
     tdi: 'https://www.tdi-bi.com/r-v-brooks-mccall/',
     name: 'RV Brooks McCall',
     mmsi: '338257000',
     imo: '8964367',
-    call: 'WCZ7811',
     flag: 'USA',
-    loa: 48,
     short: 'RV BROOKS McCALL',
     c: '--v4',
     photo: 'img/brooks-mccall.webp',
@@ -67,13 +66,13 @@ const FLEET = [
   },
   {
     id: 'miss-emma-mccall',
+    site: 'emmashipdash', // sites= param for getFleetPositions
+    api: 'emma', // key in the getFleetPositions response
     tdi: 'https://www.tdi-bi.com/r-v-miss-emma-mccall/',
     name: 'RV Miss Emma McCall',
     mmsi: '577759000',
     imo: '9289659',
-    call: '—',
     flag: 'Vanuatu',
-    loa: 46,
     short: 'RV MISS EMMA McCALL',
     c: '--v5',
     photo: 'img/miss-emma-mccall.webp',
@@ -83,8 +82,6 @@ const FLEET = [
 const pos = {};
 let selected = null,
   hover = null;
-const css = n =>
-  getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 /* ---------- formatting ---------- */
 function dm(v, isLat) {
@@ -115,17 +112,7 @@ function fresh(iso) {
   if (h < 48) return ['warn', 'Aging'];
   return ['bad', 'Stale'];
 }
-function statusChip(p) {
-  const s = (p.status || '').toLowerCase();
-  if (!s) return '';
-  const k =
-    s.includes('moor') || s.includes('anchor')
-      ? 'mute'
-      : s.includes('restrict')
-        ? 'warn'
-        : 'ok';
-  return `<span class="chip ${k}">${esc(p.status)}</span>`;
-}
+
 function esc(t) {
   return String(t ?? '').replace(
     /[&<>"]/g,
@@ -149,8 +136,8 @@ const path = d3.geoPath(proj);
 /* basemap: world countries + US states (TopoJSON), drawn once they arrive */
 async function loadBasemap() {
   const [topo, stTopo] = await Promise.all(
-    ['data/countries.topo.json', 'data/states.topo.json'].map((u) =>
-      fetch(u).then((r) => {
+    ['data/countries.topo.json', 'data/states.topo.json'].map(u =>
+      fetch(u).then(r => {
         if (!r.ok) throw new Error(`${u}: ${r.status}`);
         return r.json();
       })
@@ -173,7 +160,7 @@ async function loadBasemap() {
     .attr('class', 'borders')
     .attr('d', path);
 }
-loadBasemap().catch((e) => console.error('Basemap failed to load', e));
+loadBasemap().catch(e => console.error('Basemap failed to load', e));
 /* place names: [lon, lat, text, kind, tier]; tier sets the zoom at which a name appears */
 const PLACES = [
   [-47, 38.5, 'North Atlantic Ocean', 'ocean', 0],
@@ -275,9 +262,7 @@ function drawPlaces() {
       const [x, y] = T.apply(proj([p[0], p[1]]));
       return { p, x, y };
     })
-    .filter(
-      d => d.x > -150 && d.x < w + 150 && d.y > -40 && d.y < h + 40
-    );
+    .filter(d => d.x > -150 && d.x < w + 150 && d.y > -40 && d.y < h + 40);
   const dotted = d => /city|hq/.test(d.p[3]);
   plG
     .selectAll('circle.pl-dot')
@@ -298,6 +283,8 @@ function drawPlaces() {
     .text(d => d.p[2]);
 }
 let T = d3.zoomIdentity;
+const motionMs = () =>
+  matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 750;
 const zoom = d3
   .zoom()
   .scaleExtent([60, 400000])
@@ -307,7 +294,7 @@ const zoom = d3
     drawPlaces();
     drawMarkers();
   });
-const EMBED = document.documentElement.classList.contains('embed');
+
 if (EMBED)
   zoom.filter(e =>
     e.type === 'wheel'
@@ -341,36 +328,20 @@ function fit(features, pad = 60) {
     .translate(w / 2, h / 2)
     .scale(k)
     .translate(-(b[0][0] + b[1][0]) / 2, -(b[0][1] + b[1][1]) / 2);
-  svg
-    .transition()
-    .duration(
-      matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 750
-    )
-    .call(zoom.transform, t);
+  svg.transition().duration(motionMs()).call(zoom.transform, t);
 }
-function pointFeatures(ids) {
-  return ids
-    .filter(id => pos[id])
-    .map(id => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [pos[id].lon, pos[id].lat],
-      },
-    }));
-}
+const point = coordinates => ({
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates },
+});
 function fitFleet() {
-  const f = pointFeatures(FLEET.map(v => v.id));
-  if (f.length) {
-    const e = Math.max(...f.map(x => x.geometry.coordinates[0]));
-    const n = Math.max(...f.map(x => x.geometry.coordinates[1]));
-    f.push({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [e + 14, n + 6] },
-    });
-  }
-  if (f.length) fit(f, 90);
-  else
+  const pts = Object.values(pos).map(p => [p.lon, p.lat]);
+  if (pts.length) {
+    // extra point to the NE leaves room for the ship photos and labels
+    const e = Math.max(...pts.map(c => c[0]));
+    const n = Math.max(...pts.map(c => c[1]));
+    fit([...pts, [e + 14, n + 6]].map(point), 90);
+  } else
     fit(
       [
         {
@@ -395,9 +366,7 @@ function flyTo(id) {
   const k = Math.max(T.k, 2500);
   svg
     .transition()
-    .duration(
-      matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 750
-    )
+    .duration(motionMs())
     .call(
       zoom.transform,
       d3.zoomIdentity
@@ -415,74 +384,49 @@ function where(p) {
     const d = d3.geoDistance([p.lon, p.lat], [c[0], c[1]]) * 3440.065;
     if (!best || d < best.d) best = { d, c };
   }
-  if (best && best.d <= 60) {
-    if (best.d < 3) return best.c[2].replace(' (HQ)', '');
-    const b =
-      ((Math.atan2(
-        ...(() => {
-          const l1 = (best.c[1] * Math.PI) / 180,
-            l2 = (p.lat * Math.PI) / 180,
-            dl = ((p.lon - best.c[0]) * Math.PI) / 180;
-          return [
-            Math.sin(dl) * Math.cos(l2),
-            Math.cos(l1) * Math.sin(l2) -
-              Math.sin(l1) * Math.cos(l2) * Math.cos(dl),
-          ];
-        })()
-      ) *
-        180) /
-        Math.PI +
-        360) %
-      360;
-    return `${Math.round(best.d)} nm ${BRG[Math.round(b / 45) % 8]} of ${best.c[2].replace(' (HQ)', '')}`;
-  }
-  return p.area || 'At sea';
+  if (!best || best.d > 60) return 'At sea';
+  const name = best.c[2].replace(' (HQ)', '');
+  if (best.d < 3) return name;
+  // initial bearing from the place to the vessel
+  const rad = Math.PI / 180,
+    l1 = best.c[1] * rad,
+    l2 = p.lat * rad,
+    dl = (p.lon - best.c[0]) * rad;
+  const y = Math.sin(dl) * Math.cos(l2),
+    x =
+      Math.cos(l1) * Math.sin(l2) - Math.sin(l1) * Math.cos(l2) * Math.cos(dl);
+  const b = (Math.atan2(y, x) / rad + 360) % 360;
+  return `${Math.round(best.d)} nm ${BRG[Math.round(b / 45) % 8]} of ${name}`;
 }
-function statusWord(p) {
-  const s = (p.status || '').toLowerCase();
-  if (s.includes('moor')) return 'Moored';
-  if (s.includes('anchor')) return 'At anchor';
-  if (s.includes('restrict')) return 'On station';
-  return (p.sog || 0) >= 0.5 ? 'Under way' : 'Stationary';
-}
+
+/* screen-space boxes [left, top, right, bottom] for label collision checks */
+const box = el => {
+  const r = el.getBoundingClientRect();
+  return [r.left, r.top, r.right, r.bottom];
+};
+const hit = (a, b) => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
 function hideVesselLabelClashes() {
-  const R = el => {
-    const r = el.getBoundingClientRect();
-    return [r.left, r.top, r.right, r.bottom];
-  };
-  const hit = (a, b) =>
-    a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
   const els = mkG.selectAll('a.mk').nodes();
   els.forEach(e => {
     e.querySelector('text').style.display = '';
   });
-  const ships = els.map(e => {
-    const img = e.querySelector('image:not([hidden])');
-    return img ? R(img) : R(e.querySelector('.body'));
-  });
+  const ships = els.map(e => box(e.querySelector('image')));
   const shown = [];
   els.forEach((e, i) => {
     const t = e.querySelector('text');
-    const r = R(t);
+    const r = box(t);
     const clash =
-      ships.some((b, j) => j !== i && hit(r, b)) ||
-      shown.some(b => hit(r, b));
+      ships.some((b, j) => j !== i && hit(r, b)) || shown.some(b => hit(r, b));
     if (clash) t.style.display = 'none';
     else shown.push(r);
   });
 }
 function declutter() {
-  const R = el => {
-    const r = el.getBoundingClientRect();
-    return [r.left, r.top, r.right, r.bottom];
-  };
   const boxes = [];
   mkG.selectAll('a.mk').each(function () {
-    const r = R(this);
+    const r = box(this);
     boxes.push([r[0] - 4, r[1] - 4, r[2] + 4, r[3] + 4]);
   });
-  const hit = (a, b) =>
-    a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
   const order = {
     ocean: 0,
     'country big': 1,
@@ -500,19 +444,19 @@ function declutter() {
       a.__data__.p[4] - b.__data__.p[4]
   );
   const kept = new Set();
-  const cr = R(document.getElementById('chart'));
+  const cr = box(document.getElementById('chart'));
   for (const n of nodes) {
-    const r = R(n);
-    const box = [r[0] - 2, r[1] - 1, r[2] + 2, r[3] + 1];
+    const r = box(n);
+    const b = [r[0] - 2, r[1] - 1, r[2] + 2, r[3] + 1];
     const ok =
       r[0] >= cr[0] &&
       r[2] <= cr[2] &&
       r[1] >= cr[1] &&
       r[3] <= cr[3] &&
-      !boxes.some(x => hit(box, x));
+      !boxes.some(x => hit(b, x));
     n.style.display = ok ? '' : 'none';
     if (ok) {
-      boxes.push(box);
+      boxes.push(b);
       kept.add(n.__data__.p[2]);
     }
   }
@@ -528,19 +472,11 @@ function drawMarkers() {
       const [x, y] = T.apply(proj([p.lon, p.lat]));
       return { v, p, x, y };
     })
-    .sort(
-      (a, b) => (a.v.id === selected) - (b.v.id === selected) || a.y - b.y
-    );
+    .sort((a, b) => (a.v.id === selected) - (b.v.id === selected) || a.y - b.y);
   const narrow = w < 560;
   const W = narrow
-    ? Math.max(
-        38,
-        Math.min(110, 38 + Math.log2(Math.max(1, T.k / 150)) * 14)
-      )
-    : Math.max(
-        64,
-        Math.min(170, 64 + Math.log2(Math.max(1, T.k / 150)) * 18)
-      );
+    ? Math.max(38, Math.min(110, 38 + Math.log2(Math.max(1, T.k / 150)) * 14))
+    : Math.max(64, Math.min(170, 64 + Math.log2(Math.max(1, T.k / 150)) * 18));
   const g = mkG
     .selectAll('a.mk')
     .data(data, d => d.v.id)
@@ -561,58 +497,40 @@ function drawMarkers() {
           drawMarkers();
         });
       g.append('title').text(d => 'Open ' + d.v.name + ' on tdi-bi.com');
-      g.append('circle').attr('class', 'halo').attr('r', 9);
-      g.append('path').attr('class', 'body');
+      g.append('circle')
+        .attr('class', 'halo')
+        .attr('r', 7)
+        .style('stroke', d => `var(${d.v.c})`);
+      g.append('circle')
+        .attr('class', 'body')
+        .attr('r', 3.5)
+        .style('fill', d => `var(${d.v.c})`);
       g.append('image')
         .attr('class', 'photo')
+        .attr('href', d => d.v.photo)
         .attr('preserveAspectRatio', 'xMidYMax meet');
-      g.append('text').attr('class', 'mk-label');
+      g.append('text')
+        .attr('class', 'mk-label')
+        .attr('x', 10)
+        .attr('y', 5)
+        .text(d => d.v.short);
       return g;
     })
     .order();
   g.each(function (d) {
-    const { v, p, x, y } = d,
-      col = css(v.c);
-    const moving = (p.sog || 0) >= 0.5 && p.cog != null;
+    const { v, p, x, y } = d;
     const el = d3
       .select(this)
       .attr('transform', `translate(${x},${y})`)
       .classed('sel', selected === v.id)
       .classed('stale', fresh(p.fixTime)[0] === 'bad');
-    el.select('.halo')
-      .attr('stroke', col)
-      .attr('r', v.photo ? 7 : 12)
-      .attr('stroke-dasharray', p.approx ? '3 3' : null);
-    el.select('.body')
-      .attr('fill', col)
-      .attr('stroke', css('--sea'))
-      .attr('stroke-width', 1.2)
-      .attr(
-        'd',
-        v.photo
-          ? 'M0,-3.5 A3.5,3.5 0 1 1 0,3.5 A3.5,3.5 0 1 1 0,-3.5 Z'
-          : moving
-            ? 'M0,-9 L6,7 L0,3.5 L-6,7 Z'
-            : 'M0,-5.5 A5.5,5.5 0 1 1 0,5.5 A5.5,5.5 0 1 1 0,-5.5 Z'
-      )
-      .attr('transform', !v.photo && moving ? `rotate(${p.cog})` : null);
-    const img = el.select('.photo');
-    if (v.photo) {
-      const iw = selected === v.id ? W * 1.25 : W,
-        ih = iw / v.ar;
-      img
-        .attr('href', v.photo)
-        .attr('width', iw)
-        .attr('height', ih)
-        .attr('x', -iw / 2)
-        .attr('y', -ih - 4)
-        .attr('hidden', null);
-    } else img.attr('hidden', '').attr('href', null);
-    el.select('text')
-      .text(v.short)
-      .attr('text-anchor', 'start')
-      .attr('x', v.photo ? 10 : 16)
-      .attr('y', 5);
+    const iw = selected === v.id ? W * 1.25 : W,
+      ih = iw / v.ar;
+    el.select('.photo')
+      .attr('width', iw)
+      .attr('height', ih)
+      .attr('x', -iw / 2)
+      .attr('y', -ih - 4);
   });
   hideVesselLabelClashes();
   declutter();
@@ -622,16 +540,15 @@ function drawMarkers() {
   if (!sd || sd.x < -50 || sd.x > w + 50 || sd.y < -50 || sd.y > h + 50) {
     co.hidden = true;
   } else {
-    const { v, p } = sd,
-      [fk, fl] = fresh(p.fixTime);
-    co.innerHTML = `<div class="eyebrow">${esc(statusWord(p))} · ${fl}</div><div class="cname">${esc(v.name)}</div>
+    const { v, p } = sd;
+    co.innerHTML = `<div class="eyebrow">${fresh(p.fixTime)[1]}</div><div class="cname">${esc(v.name)}</div>
 <div class="cline">${esc(where(p))}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)} · ${ago(p.fixTime)}</div><div class="cgo">Click the ship for the vessel page ↗</div>`;
     co.hidden = false;
     const cw = co.offsetWidth,
       ch = co.offsetHeight,
-      off = v.photo ? W * 0.7 : 22;
+      off = W * 0.7;
     let left = sd.x + off,
-      top = sd.y - ch - (v.photo ? (W / v.ar) * 0.4 : 10);
+      top = sd.y - ch - (W / v.ar) * 0.4;
     if (left + cw > w - 8) left = sd.x - off - cw;
     left = Math.max(8, Math.min(w - cw - 8, left));
     top = Math.max(8, Math.min(h - ch - 8, top));
@@ -645,19 +562,19 @@ function renderList() {
   const L = document.getElementById('list');
   L.innerHTML = FLEET.map(v => {
     const p = pos[v.id];
-    const [fk, fl] = p ? fresh(p.fixTime) : ['mute', 'No fix'];
+    const [fk, fl] = fresh(p?.fixTime);
     const mt = `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${v.mmsi}`;
     const vf = `https://www.vesselfinder.com/vessels/details/${v.imo}`;
     const ms = `https://www.myshiptracking.com/vessels/mmsi-${v.mmsi}`;
-    return `<div class="vessel${selected === v.id ? ' sel' : ''}${v.photo ? ' has-thumb' : ''}" role="button" tabindex="0" data-id="${v.id}">
+    return `<div class="vessel${selected === v.id ? ' sel' : ''}" role="button" tabindex="0" data-id="${v.id}">
 <span class="swatch" style="background:var(${v.c})"></span>
-${v.photo ? `<img class="thumb" src="${v.photo}" alt="">` : ''}<div class="vname">${esc(v.name)} <span class="chip ${fk}">${fl}</span> ${p ? statusChip(p) : ''}</div>
+<img class="thumb" src="${v.photo}" alt=""><div class="vname">${esc(v.name)} <span class="chip ${fk}">${fl}</span></div>
 ${
   p
     ? `<div class="pos">${dm(p.lat, true)}&nbsp; ${dm(p.lon, false)}</div>
-<div class="meta"><span>SOG<b>${p.sog != null ? Number(p.sog).toFixed(1) + ' kn' : '—'}</b></span><span>COG<b>${p.cog != null ? String(Math.round(p.cog)).padStart(3, '0') + '°' : '—'}</b></span><span>Fix<b title="${utc(p.fixTime)}">${ago(p.fixTime)}</b></span></div>
-<div class="ids">${esc(where(p))}${p.dest ? ' · Dest ' + esc(p.dest) : ''}</div>
-${p.note ? `<div class="note">${esc(p.note)}</div>` : ''}`
+<div class="meta"><span>Last updated<b title="${utc(p.fixTime)}">${ago(p.fixTime)}</b></span></div>
+<div class="ids">${esc(where(p))}</div>
+`
     : `<div class="ids">No position in the store yet.</div>`
 }
 <div class="ids">MMSI ${v.mmsi} · IMO ${v.imo} · ${esc(v.flag)}</div>
@@ -698,14 +615,7 @@ new ResizeObserver(() => {
   drawPlaces();
   drawMarkers();
 }).observe(document.getElementById('chart'));
-matchMedia('(prefers-color-scheme: dark)').addEventListener(
-  'change',
-  () => drawMarkers()
-);
-new MutationObserver(drawMarkers).observe(document.documentElement, {
-  attributes: true,
-  attributeFilter: ['data-theme'],
-});
+
 setInterval(() => {
   renderList();
   drawMarkers();
@@ -714,29 +624,37 @@ setInterval(() => {
 renderList();
 requestAnimationFrame(() => fitFleet());
 
-/* ---------- positions feed: positions.json, refreshed by the GitHub Action ---------- */
+/* ---------- positions feed: internal getFleetPositions API ---------- */
+const POSITIONS_API = 'http://localhost:1902/getFleetPositions';
 const REFRESH_MS = 5 * 60 * 1000;
+/* API response: { <api key>: { pos: { latitude, longitude }, time } } -> pos[<fleet id>] */
+function readFleetPositions(j) {
+  let newest = null;
+  for (const v of FLEET) {
+    const x = j[v.api];
+    const lat = x?.pos?.latitude,
+      lon = x?.pos?.longitude;
+    if (typeof lat !== 'number' || typeof lon !== 'number') continue;
+    pos[v.id] = { lat, lon, fixTime: x.time };
+    if (x.time && (!newest || x.time > newest)) newest = x.time;
+  }
+  return newest;
+}
 let firstFit = false;
 function setFeed(live, text) {
   document.getElementById('feed').innerHTML =
     `<span class="dot${live ? ' live' : ''}"></span><span>${esc(text)}</span>`;
-  const eb = document.getElementById('embedBadge');
-  if (eb) eb.textContent = text;
+  document.getElementById('embedBadge').textContent = text;
 }
 async function loadPositions() {
   try {
-    const r = await fetch('positions.json?t=' + Date.now(), {
+    const sites = FLEET.map(v => v.site).join(',');
+    const r = await fetch(`${POSITIONS_API}?sites=${sites}`, {
       cache: 'no-store',
     });
     if (!r.ok) throw new Error(r.status);
-    const j = await r.json(),
-      v = j.vessels || {};
-    for (const id in v) {
-      const x = v[id];
-      if (typeof x.lat === 'number' && typeof x.lon === 'number')
-        pos[id] = x;
-    }
-    setFeed(true, `Updated ${ago(j.updated)} (${utc(j.updated)})`);
+    const updated = readFleetPositions(await r.json());
+    setFeed(true, `Updated ${ago(updated)} (${utc(updated)})`);
     renderList();
     drawPlaces();
     drawMarkers();

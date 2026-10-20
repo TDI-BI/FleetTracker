@@ -1,24 +1,40 @@
 # TDI-Brooks Fleet Tracker
 
-A live map of the TDI-Brooks research vessels (RV Nautilus, RV Gyre, RV Proteus, RV Brooks McCall, RV Miss Emma McCall) built from AIS positions. It is published with GitHub Pages and is built to be embedded on tdi-bi.com.
+A live map of the TDI-Brooks research vessels (RV Nautilus, RV Gyre, RV Proteus, RV Brooks McCall, RV Miss Emma McCall). It is a static site, built to be embedded on tdi-bi.com.
 
 ## How it works
 
-- `index.html` is the map. It reads `positions.json` when it opens and again every 5 minutes.
-- A GitHub Action (`.github/workflows/update-positions.yml`) runs every 10 minutes. It listens to AISStream.io for 4 minutes, writes any new fixes into `positions.json`, commits them, and redeploys the site.
-- A vessel out of receiver range keeps its last known position. The page marks a fix older than 6 hours "Aging" and older than 2 days "Stale".
+- `index.html` is the page markup. Styles are in `css/style.css` and the app is `scripts/app.js`.
+- On load, and again every 5 minutes, the page requests vessel positions from the internal `getFleetPositions` API (`POSITIONS_API` in `scripts/app.js`).
+- The basemap (world countries and US states) is TopoJSON in `data/`, drawn with d3 and topojson-client from CDNs.
+- The page marks a position older than 6 hours "Aging" and older than 2 days "Stale".
 - Clicking a ship opens its page on tdi-bi.com.
 
-## One-time setup (about 10 minutes)
+## Running locally
 
-1. **Get an AIS key.** Sign up at https://aisstream.io (free) and copy your API key.
-2. **Create the repository.** On GitHub, create a new **public** repository, for example `fleet-tracker`, and upload everything in this folder, including the hidden `.github` folder.
-   - Public matters. Scheduled Actions are free and unlimited on public repos. On a private repo this schedule would use up the 2,000 free monthly minutes in a few days.
-3. **Add the key as a secret.** Repository → Settings → Secrets and variables → Actions → New repository secret. Name: `AISSTREAM_API_KEY`. Value: your key.
-4. **Turn on Pages.** Repository → Settings → Pages → Build and deployment → Source: **GitHub Actions**.
-5. **Run it once.** Actions tab → "Update vessel positions" → Run workflow. When it finishes, the site is live at `https://broussardbrandt.github.io/FleetTracker/`.
+Browsers block `fetch()` on `file://` pages, so serve the folder:
 
-After that it updates on its own. If GitHub is busy, scheduled runs can start a few minutes late.
+```sh
+python3 -m http.server 8000
+```
+
+Then open http://localhost:8000/ (or http://localhost:8000/#embed for the embed view). The positions API must also be running at the URL in `POSITIONS_API`.
+
+## Positions API
+
+`GET /getFleetPositions?sites=<site>,<site>,...` returns one entry per vessel:
+
+```json
+{
+  "brooks": { "pos": { "latitude": 28.9792, "longitude": -95.4167 }, "time": "2026-10-20T20:10:07Z" }
+}
+```
+
+The `sites` list is built from each vessel's `site` in `FLEET`, and each response key is matched to a vessel by its `api` field. The API must send CORS headers allowing the page's origin.
+
+## Hosting
+
+GitHub Pages, deployed from the `main` branch: Repository → Settings → Pages → Build and deployment → Source: **Deploy from a branch** → `main`, `/ (root)`. Every push to `main` publishes the site.
 
 ## Putting it on tdi-bi.com
 
@@ -39,13 +55,9 @@ The height scales with screen width: 640px on a desktop, about 380px on a phone.
 
 To serve it from a TDI address such as `fleet.tdi-bi.com`: add a CNAME DNS record pointing `fleet` to `<your-account>.github.io`, then enter the domain under Settings → Pages → Custom domain.
 
-## Coverage
-
-AISStream.io uses coastal receivers, so vessels in port or on the shelf update reliably. Vessels working well offshore (typically Gyre and Nautilus off West Africa) can go quiet until they come back into range. Continuous offshore tracking needs a satellite AIS provider such as Spire Maritime or Kpler. Only `scripts/update_positions.py` would need to change.
-
 ## Changing things
 
-- **Vessel details, MMSIs, photos, TDI links:** the `FLEET` list near the top of the script in `index.html`. Photos are in `img/`.
-- **Tracked MMSIs for the updater:** `FLEET` in `scripts/update_positions.py`. Keep both lists in step if an MMSI changes. Miss Emma McCall's MMSI changed to 577759000 when she was re-flagged to Vanuatu.
-- **Map place names:** the `PLACES` list in `index.html`.
-- **Update frequency:** the `cron` line in the workflow. Every 10 minutes is a sensible floor for GitHub Actions.
+- **Vessel details, MMSIs, photos, TDI links, API keys:** the `FLEET` list near the top of `scripts/app.js`. Photos are in `img/`.
+- **Positions API URL:** `POSITIONS_API` in `scripts/app.js`.
+- **Map place names:** the `PLACES` list in `scripts/app.js`.
+- **Refresh interval:** `REFRESH_MS` in `scripts/app.js`.
