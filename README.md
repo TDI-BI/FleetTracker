@@ -6,7 +6,7 @@ A live map of the TDI-Brooks research vessels (RV Nautilus, RV Gyre, RV Proteus,
 
 - `index.html` is the page markup. Styles are in `css/style.css` and the app is `scripts/app.js`.
 - On load, and again every 5 minutes, the page requests vessel positions from the internal `getFleetPositions` API (`POSITIONS_API` in `scripts/app.js`).
-- The basemap (world countries) is TopoJSON in `data/countries.topo.json`, drawn with d3 and topojson-client from CDNs. Keep it minified; `.prettierignore` stops editors reformatting it.
+- The basemap (world countries) is TopoJSON in `data/countries.topo.json`, drawn with d3 and topojson-client from CDNs. It is generated; see [Map data](#map-data).
 - The page marks a position older than 6 hours "Aging" and older than 2 days "Stale".
 - Clicking a ship opens its page on tdi-bi.com.
 
@@ -54,6 +54,16 @@ The height scales with screen width: 640px on a desktop, about 380px on a phone.
 `#embed` shows the map on its own, without the header and vessel list, and needs Ctrl + scroll to zoom so it doesn't hijack scrolling on the website. Leave `#embed` off to embed the full page with the vessel list.
 
 To serve it from a TDI address such as `fleet.tdi-bi.com`: add a CNAME DNS record pointing `fleet` to `<your-account>.github.io`, then enter the domain under Settings → Pages → Custom domain.
+
+## Map data
+
+`data/countries.topo.json` is a simplified copy of `data/countries.original.topo.json` (the full-detail source, 221 KB gzipped vs 71 KB). Don't edit it by hand; regenerate it:
+
+```sh
+cd tools && npm install && npm run shrink-map
+```
+
+`tools/shrink-map.mjs` keeps 25% of coastline points, keeps every point of islands under 300 km² so small islands like Roatán don't vanish, and snaps coordinates to a coarser grid. The lost detail is invisible because zoom is capped at port level (`MAX_ZOOM` in `scripts/app.js`). The `tools/` dependencies are only needed for this; the site itself has no build step. Both map files are kept minified, and `.prettierignore` stops editors reformatting them.
 
 ## Changing things
 

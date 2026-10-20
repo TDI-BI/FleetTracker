@@ -333,22 +333,6 @@ a:focus-visible,
   opacity: 0.75;
   margin-top: 4px;
 }
-.thumb {
-  width: 96px;
-  height: 56px;
-  object-fit: contain;
-  grid-row: 1 / span 3;
-  grid-column: 3;
-  justify-self: end;
-  align-self: center;
-}
-.vessel > :not(.swatch):not(.thumb) {
-  grid-column: 2 / span 2;
-}
-.vessel > .vname,
-.vessel > .pos {
-  grid-column: 2;
-}
 .scale-note {
   position: absolute;
   left: 10px;
@@ -405,26 +389,39 @@ aside {
   display: flex;
   flex-direction: column;
 }
+/* vessel card: name + location beside the photo, then full-width rows */
 .vessel {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 4px 12px;
-  padding: 14px 16px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px 16px 14px 13px;
+  border-left: 3px solid var(--c);
   border-bottom: 1px solid var(--line);
   cursor: pointer;
   text-align: left;
+}
+.vessel > :not(.vhead):not(.thumb) {
+  grid-column: 1 / -1;
+}
+.vhead {
+  min-width: 0;
+}
+.where {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+.thumb {
+  width: 88px;
+  height: 48px;
+  object-fit: contain;
 }
 .vessel:hover {
   background: color-mix(in srgb, var(--ink) 4%, transparent);
 }
 .vessel.sel {
   background: color-mix(in srgb, var(--accent) 9%, transparent);
-}
-.swatch {
-  grid-row: 1 / span 4;
-  width: 4px;
-  border-radius: 2px;
-  align-self: stretch;
 }
 .vname {
   font: 700 1.15rem var(--f-display);
@@ -454,21 +451,17 @@ aside {
 .chip.mute {
   color: var(--ink-2);
 }
-.pos {
-  font: 500 0.86rem var(--f-data);
-  font-variant-numeric: tabular-nums;
-}
-.meta {
-  display: grid;
-  grid-template-columns: auto;
-  justify-content: start;
-  gap: 2px 16px;
-  font-size: 0.8rem;
+.facts {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 0.74rem;
   color: var(--ink-2);
 }
-.meta b {
-  display: block;
-  font: 500 0.84rem var(--f-data);
+.facts dd {
+  margin: 0;
+  font: 500 0.86rem var(--f-data);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }

@@ -273,11 +273,13 @@ function drawPlaces() {
     .text(d => d.p[2]);
 }
 let T = d3.zoomIdentity;
+// past this the coastline data is too coarse to be meaningful (~port level)
+const MAX_ZOOM = 2500;
 const motionMs = () =>
   matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 750;
 const zoom = d3
   .zoom()
-  .scaleExtent([60, 400000])
+  .scaleExtent([60, MAX_ZOOM])
   .on('zoom', e => {
     T = e.transform;
     root.attr('transform', T);
@@ -313,7 +315,7 @@ function fit(features, pad = 60) {
     b[1][1] += minSpan / 2;
     dy = minSpan;
   }
-  const k = Math.min(60000, (w - pad * 2) / dx, (h - pad * 2) / dy);
+  const k = Math.min(MAX_ZOOM, (w - pad * 2) / dx, (h - pad * 2) / dy);
   const t = d3.zoomIdentity
     .translate(w / 2, h / 2)
     .scale(k)
@@ -556,16 +558,19 @@ function renderList() {
     const mt = `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${v.mmsi}`;
     const vf = `https://www.vesselfinder.com/vessels/details/${v.imo}`;
     const ms = `https://www.myshiptracking.com/vessels/mmsi-${v.mmsi}`;
-    return `<div class="vessel${selected === v.id ? ' sel' : ''}" role="button" tabindex="0" data-id="${v.id}">
-<span class="swatch" style="background:var(${v.c})"></span>
-<img class="thumb" src="${v.photo}" alt=""><div class="vname">${esc(v.name)} <span class="chip ${fk}">${fl}</span></div>
+    return `<div class="vessel${selected === v.id ? ' sel' : ''}" style="--c:var(${v.c})" role="button" tabindex="0" data-id="${v.id}">
+<div class="vhead">
+  <div class="vname">${esc(v.name)} <span class="chip ${fk}">${fl}</span></div>
+  <div class="where">${p ? esc(where(p)) : 'No position yet'}</div>
+</div>
+<img class="thumb" src="${v.photo}" alt="">
 ${
   p
-    ? `<div class="pos">${dm(p.lat, true)}&nbsp; ${dm(p.lon, false)}</div>
-<div class="meta"><span>Last updated<b title="${utc(p.fixTime)}">${ago(p.fixTime)}</b></span></div>
-<div class="ids">${esc(where(p))}</div>
-`
-    : `<div class="ids">No position in the store yet.</div>`
+    ? `<dl class="facts">
+  <div><dt>Position</dt><dd>${dm(p.lat, true)} ${dm(p.lon, false)}</dd></div>
+  <div><dt>Last updated</dt><dd title="${utc(p.fixTime)}">${ago(p.fixTime)}</dd></div>
+</dl>`
+    : ''
 }
 <div class="ids">MMSI ${v.mmsi} · IMO ${v.imo} · ${esc(v.flag)}</div>
 <div class="links"><a class="tdi" href="${v.tdi}" target="_blank" rel="noopener">TDI vessel page ↗</a><a href="${mt}" target="_blank" rel="noopener">MarineTraffic</a><a href="${vf}" target="_blank" rel="noopener">VesselFinder</a><a href="${ms}" target="_blank" rel="noopener">MyShipTracking</a></div>
