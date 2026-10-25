@@ -10,66 +10,73 @@ img {
   display: none !important;
 }
 
-/* Layout: full-height chart table — paper nautical chart (day) / ECDIS dusk (dark), vessel list docked right, stacks under the chart on phones */
+/* Layout: full-height chart, vessel list docked right, stacks under the chart on phones.
+   Look matches tdi-bi.com (Avada theme): Plus Jakarta Sans headings, Roboto body,
+   brand blue #323fcc / navy #2a328d, #555 body text, near-square 2px corners. */
 :root {
-  --sea: #eceef1;
-  --land: #b4c0ce;
-  --land-edge: #9dabbb;
-  --border: #f4f6f8;
-  --lbl-country: #14263a;
-  --lbl-region: #6f7f91;
-  --lbl-sea: #6b7b8d;
-  --lbl-city: #1c2c3c;
-  --vessel-lbl: #0f2a3d;
-  --ink: #15303f;
-  --ink-2: #4b6474;
-  --panel: #f7f5ee;
-  --line: #d9d3bf;
-  --accent: #b8411f;
-  --focus: #1f6fb8;
+  --sea: #eef1f6;
+  --land: #cdd2e2;
+  --land-edge: #b6bdd3;
+  --border: #f8f9fa;
+  --lbl-country: #1c1c1c;
+  --lbl-region: #6b7080;
+  --lbl-sea: #7a80a0;
+  --lbl-city: #212934;
+  --ink: #1c1c1c;
+  --ink-2: #555555;
+  --panel: #ffffff;
+  --panel-2: #f8f9fa;
+  --line: #e2e2e2;
+  --accent: #323fcc;
+  --accent-deep: #2a328d;
+  --on-accent: #ffffff;
+  --focus: #6d79ff;
   --ok: #2f7d4a;
   --warn: #b07a12;
   --bad: #a3342a;
-  --v1: #b8411f;
-  --v2: #1f6fb8;
+  --v1: #c4502a;
+  --v2: #1f7fb8;
   --v3: #7a3fa0;
   --v4: #1d8a7a;
   --v5: #b0770c;
-  --card-bg: #0f2a3d;
-  --card-fg: #eef4f7;
-  --card-eyebrow: #3fd0e0;
-  --f-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
-  --f-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --f-data: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --card-bg: #2a328d;
+  --card-fg: #ffffff;
+  --card-eyebrow: #ffcd2a;
+  --radius: 2px;
+  --f-display: 'Plus Jakarta Sans', Arial, Helvetica, sans-serif;
+  --f-body: Roboto, Arial, Helvetica, sans-serif;
+  --f-data: 'Roboto Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --sea: #0f161d;
-    --land: #2d3a48;
-    --land-edge: #3b4a5a;
-    --border: #51647a;
-    --lbl-country: #e4ebf2;
-    --lbl-region: #8fa0b2;
-    --lbl-sea: #7f92a6;
-    --lbl-city: #d5dee7;
-    --vessel-lbl: #f2f6f9;
-    --ink: #e3ecf1;
-    --ink-2: #93a9b7;
-    --panel: #111f29;
-    --line: #23394a;
-    --accent: #ff8a5c;
-    --focus: #6fb4ff;
+    --sea: #161c24;
+    --land: #2e3746;
+    --land-edge: #3c4757;
+    --border: #556178;
+    --lbl-country: #f8f9fa;
+    --lbl-region: #9aa2b4;
+    --lbl-sea: #8a93b0;
+    --lbl-city: #e2e2e2;
+    --ink: #f8f9fa;
+    --ink-2: #a9b0bd;
+    --panel: #212934;
+    --panel-2: #1b222c;
+    --line: #343d4b;
+    --accent: #8d96ff;
+    --accent-deep: #6d79ff;
+    --on-accent: #12163f;
+    --focus: #a3aaff;
     --ok: #5fcf86;
     --warn: #e8b447;
     --bad: #ff7a6e;
     --v1: #ff8a5c;
-    --v2: #6fb4ff;
+    --v2: #6fc0ff;
     --v3: #c79bf0;
     --v4: #4fd3bd;
     --v5: #f0c05a;
-    --card-bg: #1d3d53;
-    --card-fg: #eef4f7;
-    --card-eyebrow: #5fe0ee;
+    --card-bg: #2a328d;
+    --card-fg: #ffffff;
+    --card-eyebrow: #ffcd2a;
     color-scheme: dark;
   }
 }
@@ -110,15 +117,13 @@ html.embed .embed-badge {
   top: 10px;
   background: var(--card-bg);
   color: var(--card-fg);
-  font: 600 0.78rem var(--f-body);
-  padding: 6px 10px;
-  border-radius: 4px;
+  font: 500 0.78rem var(--f-body);
+  padding: 7px 12px;
+  border-radius: var(--radius);
   z-index: 3;
 }
 html.embed .embed-badge b {
   font: 700 0.95rem var(--f-display);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   display: block;
 }
 header {
@@ -126,15 +131,16 @@ header {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 6px 18px;
-  padding: 12px 16px;
+  padding: 14px 20px;
+  background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
 h1 {
   margin: 0;
   font-family: var(--f-display);
   font-weight: 700;
-  font-size: 1.55rem;
-  letter-spacing: 0.02em;
+  font-size: 1.45rem;
+  color: var(--accent-deep);
   text-wrap: balance;
 }
 h1 span {
@@ -154,14 +160,47 @@ h1 span {
 button {
   font: 500 0.85rem var(--f-body);
   color: var(--ink);
-  background: transparent;
+  background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 6px 10px;
   cursor: pointer;
 }
 button:hover {
-  border-color: var(--ink-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* primary button, as on tdi-bi.com */
+#fitBtn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 9px 18px;
+}
+/* hamburger toggle for the vessel list; tinted while the list is open */
+#listBtn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+#listBtn svg {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+#listBtn[aria-expanded='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+#fitBtn:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
 }
 button:focus-visible,
 a:focus-visible,
@@ -173,6 +212,12 @@ a:focus-visible,
   display: grid;
   grid-template-columns: 1fr 360px;
   min-height: 0;
+}
+.list-hidden .main {
+  grid-template-columns: 1fr;
+}
+.list-hidden aside {
+  display: none;
 }
 .chart {
   position: relative;
@@ -252,32 +297,44 @@ a:focus-visible,
   stroke: var(--land);
   stroke-width: 1.5;
 }
-.mk-label {
-  font: 700 15px var(--f-display);
-  letter-spacing: 0.05em;
-  fill: var(--vessel-lbl);
-  paint-order: stroke;
-  stroke: var(--sea);
-  stroke-width: 4px;
-  stroke-linejoin: round;
-}
 .mk {
   cursor: pointer;
-}
-.mk:hover .photo {
-  filter: drop-shadow(0 5px 8px rgba(10, 25, 35, 0.55));
 }
 .mk:focus-visible {
   outline: 2px solid var(--focus);
 }
 .mk .body {
-  stroke: var(--sea);
-  stroke-width: 1.2;
+  stroke: var(--card-fg);
+  stroke-width: 1.5;
 }
 .mk .halo {
   fill: none;
   stroke-width: 1.5;
   opacity: 0.55;
+}
+/* expanding ring that marks a live position */
+.mk .pulse {
+  fill: none;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 2s ease-out infinite;
+}
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+.mk.stale .pulse {
+  display: none;
+}
+.lead {
+  stroke-width: 1.5;
 }
 .mk.sel .halo {
   opacity: 1;
@@ -286,38 +343,31 @@ a:focus-visible,
 .mk.stale .body {
   opacity: 0.55;
 }
-.mk .photo {
-  filter: drop-shadow(0 3px 3px rgba(10, 25, 35, 0.35));
-}
-.mk.sel .photo {
-  filter: drop-shadow(0 4px 6px rgba(10, 25, 35, 0.5));
-}
 .callout {
   position: absolute;
   pointer-events: none;
   background: var(--card-bg);
   color: var(--card-fg);
-  border-radius: 6px;
-  padding: 10px 14px 11px;
-  min-width: 190px;
-  max-width: 240px;
+  border-radius: var(--radius);
+  padding: 12px 16px 13px;
+  /* text on the left, ship photo on the right */
+  display: flex;
+  align-items: center;
+  gap: 12px;
   box-shadow: 0 6px 18px rgba(8, 20, 30, 0.35);
+  border-top: 3px solid var(--c);
   z-index: 2;
 }
-.callout .eyebrow {
-  font: 700 0.72rem var(--f-display);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--card-eyebrow);
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--card-fg) 25%, transparent);
+.callout .ctext {
+  width: 190px;
+}
+.callout .cphoto {
+  flex: none;
+  width: 110px;
+  height: auto;
 }
 .callout .cname {
   font: 700 1.05rem var(--f-display);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .callout .cline {
   font-size: 0.8rem;
@@ -327,6 +377,15 @@ a:focus-visible,
   font: 600 0.72rem var(--f-body);
   color: var(--card-eyebrow);
   margin-top: 6px;
+}
+/* embed is for screenshots: no click hint */
+html.embed .callout .cgo {
+  display: none;
+}
+.callout .cupd {
+  font-size: 0.72rem;
+  opacity: 0.75;
+  margin-top: 2px;
 }
 .callout .cpos {
   font: 0.72rem var(--f-data);
@@ -341,7 +400,7 @@ a:focus-visible,
   color: var(--lbl-region);
   background: color-mix(in srgb, var(--sea) 80%, transparent);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius);
 }
 .zoom {
   position: absolute;
@@ -351,14 +410,56 @@ a:focus-visible,
   flex-direction: column;
   gap: 4px;
 }
-.zoom button {
+/* sits just left of the zoom buttons */
+.photo-toggle {
+  position: absolute;
+  right: 52px;
+  top: 10px;
+  height: 34px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  font: 500 0.8rem var(--f-body);
+  color: var(--ink);
   background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+  z-index: 3;
+}
+.photo-toggle input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+html.no-photos .callout .cphoto {
+  display: none;
+}
+.zoom button {
   width: 34px;
   height: 34px;
   padding: 0;
   font-size: 1.1rem;
 }
+/* embed has no header, so its "show whole fleet" lives under the zoom buttons */
+#zfit {
+  display: none;
+  place-items: center;
+}
+html.embed #zfit {
+  display: grid;
+}
+#zfit svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 aside {
+  background: var(--panel);
   border-left: 1px solid var(--line);
   overflow: auto;
   min-width: 0;
@@ -367,6 +468,7 @@ aside {
 }
 .feed {
   padding: 10px 16px;
+  background: var(--panel-2);
   border-bottom: 1px solid var(--line);
   font-size: 0.82rem;
   color: var(--ink-2);
@@ -421,11 +523,11 @@ aside {
   background: color-mix(in srgb, var(--ink) 4%, transparent);
 }
 .vessel.sel {
-  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 .vname {
-  font: 700 1.15rem var(--f-display);
-  letter-spacing: 0.03em;
+  font: 700 1.05rem var(--f-display);
+  color: var(--ink);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -436,7 +538,7 @@ aside {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 2px 7px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   border: 1px solid currentColor;
 }
 .chip.ok {
@@ -476,10 +578,11 @@ aside {
   flex-wrap: wrap;
 }
 .links a {
-  color: var(--focus);
+  color: var(--ink-2);
   text-decoration: none;
 }
 .links a:hover {
+  color: var(--accent);
   text-decoration: underline;
 }
 .links a.tdi {
@@ -488,6 +591,8 @@ aside {
 }
 .foot {
   padding: 12px 16px;
+  background: var(--panel-2);
+  border-top: 1px solid var(--line);
   font-size: 0.78rem;
   color: var(--ink-2);
   margin-top: auto;
@@ -505,6 +610,13 @@ aside {
     border-left: 0;
     border-top: 1px solid var(--line);
     overflow: visible;
+  }
+  /* list hidden: chart fills the screen */
+  .list-hidden .app {
+    height: 100%;
+  }
+  .list-hidden .main {
+    grid-template-rows: 1fr;
   }
 }
 html.embed .app {
@@ -525,12 +637,12 @@ html.embed .embed-badge {
   html.embed .embed-badge b {
     font-size: 0.8rem;
   }
-  .mk-label {
-    font-size: 12px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+  .mk .pulse {
+    display: none;
   }
 }

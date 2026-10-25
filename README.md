@@ -7,7 +7,11 @@ Live map of the TDI-Brooks research vessels. A static site with no build step, e
 ```
 index.html                         markup
 css/style.css                      styles (light/dark via CSS variables)
-scripts/app.js                     the app: map, vessel list, positions feed
+scripts/fleet.js                   vessels (FLEET), shared state, formatting
+scripts/places.js                  map labels (PLACES), "n nm NE of" text
+scripts/map.js                     basemap, zoom, fitting the view, labels
+scripts/cards.js                   vessel dots, cards and card placement
+scripts/app.js                     vessel list, buttons, positions feed, startup
 data/countries.topo.json           basemap, loaded by the page (generated)
 data/countries.original.topo.json  full-detail basemap source
 img/                               vessel photos
@@ -18,11 +22,12 @@ tools/                             map compression script (dev only)
 - Positions come from the API on load and every 5 minutes (`REFRESH_MS`).
 - Markers are tagged Aging after 6 h and Stale after 2 days.
 - Zoom is capped at port level (`MAX_ZOOM`).
+- The scripts are plain `<script>` tags sharing globals, loaded in the order listed in `index.html`; `app.js` goes last and starts everything.
 
-Most edits happen at the top of `scripts/app.js`:
-- `FLEET`: vessels, IDs, photos, links
-- `PLACES`: map labels
-- `POSITIONS_API`, `REFRESH_MS`, `MAX_ZOOM`
+Most edits are config near the top of a file:
+- `FLEET` (fleet.js): vessels, IDs, photos, links
+- `PLACES` (places.js): map labels
+- `MAX_ZOOM` (map.js), `POSITIONS_API` and `REFRESH_MS` (app.js)
 
 ## Development
 
@@ -48,7 +53,7 @@ GET https://todo.tdi-bi.com/getFleetPositions?sites=nautshipdash,gyreshipdash,..
 
 ## Hosting
 
-Any static host works: serve the repo root as-is. The page needs `index.html`, `css/`, `scripts/app.js`, `data/countries.topo.json` and `img/`.
+Any static host works: serve the repo root as-is. The page needs `index.html`, `css/`, `scripts/`, `data/countries.topo.json` and `img/`.
 
 On GitHub Pages: Settings → Pages → Source: **Deploy from a branch** → `main`, `/ (root)`. Every push to `main` publishes.
 
