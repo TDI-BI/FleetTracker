@@ -301,7 +301,7 @@ a:focus-visible,
   cursor: pointer;
 }
 /* only .hit takes the mouse: the rings are outline-only and the pulse moves,
-   so hovering them directly flickers */
+   so pointing at them directly flickers */
 .mk circle {
   pointer-events: none;
 }
@@ -354,7 +354,7 @@ a:focus-visible,
 }
 .callout {
   position: absolute;
-  pointer-events: none;
+  text-decoration: none;
   background: var(--card-bg);
   color: var(--card-fg);
   border-radius: var(--radius);
@@ -367,14 +367,25 @@ a:focus-visible,
   border-top: 3px solid var(--c);
   z-index: 2;
 }
-html.marketing .callout {
-  pointer-events: auto;
-  text-decoration: none;
-  cursor: pointer;
-}
-html.marketing .callout:hover {
+.callout:hover {
   box-shadow: 0 8px 24px rgba(8, 20, 30, 0.5);
   outline: 2px solid var(--c);
+}
+/* dashboard vessel label: just the name; sits under the full card */
+.callout.mini {
+  padding: 5px 10px 6px;
+  z-index: 1;
+}
+.callout.mini .ctext {
+  width: auto;
+}
+.callout.mini .cname {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.callout.mini .cpos {
+  margin-top: 1px;
+  white-space: nowrap;
 }
 .callout .ctext {
   width: 190px;
@@ -527,11 +538,6 @@ aside {
 .vhead {
   min-width: 0;
 }
-.where {
-  margin-top: 2px;
-  font-size: 0.82rem;
-  color: var(--ink-2);
-}
 .thumb {
   width: 88px;
   height: 48px;
@@ -551,26 +557,6 @@ aside {
   gap: 8px;
   flex-wrap: wrap;
 }
-.chip {
-  font: 600 0.68rem var(--f-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: var(--radius);
-  border: 1px solid currentColor;
-}
-.chip.ok {
-  color: var(--ok);
-}
-.chip.warn {
-  color: var(--warn);
-}
-.chip.bad {
-  color: var(--bad);
-}
-.chip.mute {
-  color: var(--ink-2);
-}
 .facts {
   margin: 0;
   display: flex;
@@ -584,6 +570,10 @@ aside {
   font: 500 0.86rem var(--f-data);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+/* place description, not a number: body font */
+.facts dd.where {
+  font-family: var(--f-body);
 }
 .ids {
   font: 0.74rem var(--f-data);

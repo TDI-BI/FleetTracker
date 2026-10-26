@@ -1,5 +1,5 @@
 /* Vessel dots, their cards and leader lines, and where the cards go.
-   Uses: fleet.js (FLEET, pos, selected, hover, formatting), places.js (where),
+   Uses: fleet.js (FLEET, pos, selected, formatting), places.js (where),
    map.js (svg layers, proj, T, MAX_ZOOM, box, declutter). */
 function drawMarkers() {
   const [w, h] = size();
@@ -20,15 +20,7 @@ function drawMarkers() {
         .attr('href', d => d.v.tdi)
         .attr('target', '_blank')
         .attr('rel', 'noopener')
-        .attr('aria-label', d => d.v.name + ' on the TDI-Brooks website')
-        .on('mouseenter', (e, d) => {
-          hover = d.v.id;
-          drawMarkers();
-        })
-        .on('mouseleave', () => {
-          hover = null;
-          drawMarkers();
-        });
+        .attr('aria-label', d => d.v.name + ' on the TDI-Brooks website');
       g.append('title').text(d => 'Open ' + d.v.name + ' on tdi-bi.com');
       g.append('circle')
         .attr('class', 'pulse')
@@ -42,21 +34,26 @@ function drawMarkers() {
         .attr('class', 'body')
         .attr('r', 5)
         .style('fill', d => `var(${d.v.c})`);
-      // invisible, steady hover/click target; the visible circles ignore the mouse
+      // invisible, steady click target; the visible circles ignore the mouse
       g.append('circle').attr('class', 'hit').attr('r', 16);
       return g;
     })
     .order()
     .attr('transform', d => `translate(${d.x},${d.y})`)
     .classed('sel', d => selected === d.v.id)
-    .classed('stale', d => fresh(d.p.fixTime)[0] === 'bad');
+    .classed('stale', d => stale(d.p.fixTime));
   drawCards(data, w, h);
   declutter();
 }
-/* vessel cards: every vessel in marketing mode, otherwise only the hovered/selected one */
-function cardHtml({ v, p }) {
+/* vessel cards. Marketing mode: a full card for every vessel.
+   Dashboard: a full card for the vessel selected in the list, and a mini card (name and
+   coordinates) for the rest while vessel labels are on. */
+let showLabels = true; // dashboard vessel labels; set by the checkbox in app.js
+function cardHtml({ v, p }, mini) {
+  if (mini)
+    return `<div class="ctext"><div class="cname">${esc(v.name)}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div></div>`;
   return `<div class="ctext"><div class="cname">${esc(v.name)}</div>
-<div class="cline">${esc(where(p))}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div><div class="cupd">Last updated: ${ago(p.fixTime)}</div><div class="cgo">Click the dot for the vessel page ↗</div></div>
+<div class="cline">${esc(where(p))}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div><div class="cupd">Last updated: ${ago(p.fixTime)}</div><div class="cgo">Click for the vessel page ↗</div></div>
 <img class="cphoto" src="${v.photo}" alt="" width="440" height="${Math.round(440 / v.ar)}">`;
 }
 /* card placement: each card tries spots around its dot and takes the one that hides
@@ -166,10 +163,11 @@ function placeCards(cards, data, w, h, land = viewLand(w, h)) {
   return { rects, score: total };
 }
 function drawCards(data, w, h) {
-  const focus = hover || selected;
+  const focus = selected;
+  const mini = d => !MARKETING && d.v.id !== focus;
   const cards = data.filter(
     d =>
-      (MARKETING || d.v.id === focus) &&
+      (MARKETING || showLabels || d.v.id === focus) &&
       d.x > -50 &&
       d.x < w + 50 &&
       d.y > -50 &&
@@ -179,21 +177,21 @@ function drawCards(data, w, h) {
     .select('#callouts')
     .selectAll('.callout')
     .data(cards, d => d.v.id)
-    // in marketing mode every card is shown and is itself a link to the vessel page;
-    // in the dashboard it's a hover/select readout that ignores the mouse
-    .join(MARKETING ? 'a' : 'div')
-    .attr('class', 'callout')
-    .attr('href', MARKETING ? d => d.v.tdi : null)
-    .attr('target', MARKETING ? '_blank' : null)
-    .attr('rel', MARKETING ? 'noopener' : null)
-    .attr('aria-label', MARKETING ? d => d.v.name + ' on the TDI-Brooks website' : null)
+    // every card, full or mini, is a link to the vessel page, like its dot
+    .join('a')
+    .attr('class', d => (mini(d) ? 'callout mini' : 'callout'))
+    .attr('href', d => d.v.tdi)
+    .attr('target', '_blank')
+    .attr('rel', 'noopener')
+    .attr('aria-label', d => d.v.name + ' on the TDI-Brooks website')
     .style('--c', d => `var(${d.v.c})`)
     .each(function (d) {
       // only rebuild when the text changes, so the photo isn't reloaded on every zoom frame
-      const html = cardHtml(d);
+      const html = cardHtml(d, mini(d));
       if (this.__html !== html) this.innerHTML = this.__html = html;
     });
-  const ids = cards.map(d => d.v.id).join();
+  // re-place when the set of cards changes, or which one is full-size
+  const ids = cards.map(d => d.v.id).join() + '|' + focus;
   if (needsPlace || ids !== placedIds) {
     const { rects } = placeCards(
       els.nodes().map(el => ({ d: el.__data__, cw: el.offsetWidth, ch: el.offsetHeight })),

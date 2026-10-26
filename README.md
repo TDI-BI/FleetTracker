@@ -20,7 +20,7 @@ tools/                             map compression script (dev only)
 
 - d3 and topojson-client load from CDNs and draw the map as SVG (Mercator).
 - Positions come from the API on load and every 5 minutes (`REFRESH_MS`).
-- Markers are tagged Aging after 6 h and Stale after 2 days.
+- A vessel whose last position is over 2 days old is drawn as stale (no pulse).
 - Zoom is capped at port level (`MAX_ZOOM`).
 - The scripts are plain `<script>` tags sharing globals, loaded in the order listed in `index.html`; `app.js` goes last and starts everything.
 

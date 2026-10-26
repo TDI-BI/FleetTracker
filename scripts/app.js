@@ -5,20 +5,18 @@ function renderList() {
   const L = document.getElementById('list');
   L.innerHTML = FLEET.map(v => {
     const p = pos[v.id];
-    const [fk, fl] = fresh(p?.fixTime);
     const mt = `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${v.mmsi}`;
     const vf = `https://www.vesselfinder.com/vessels/details/${v.imo}`;
     const ms = `https://www.myshiptracking.com/vessels/mmsi-${v.mmsi}`;
     return `<div class="vessel${selected === v.id ? ' sel' : ''}" style="--c:var(${v.c})" role="button" tabindex="0" data-id="${v.id}">
 <div class="vhead">
-  <div class="vname">${esc(v.name)} <span class="chip ${fk}">${fl}</span></div>
-  <div class="where">${p ? esc(where(p)) : 'No position yet'}</div>
+  <div class="vname">${esc(v.name)}</div>
 </div>
 <img class="thumb" src="${v.photo}" alt="">
 ${
   p
     ? `<dl class="facts">
-  <div><dt>Position</dt><dd>${dm(p.lat, true)} ${dm(p.lon, false)}</dd></div>
+  <div><dt>Position</dt><dd class="where">${esc(where(p))}</dd></div>
   <div><dt>Last updated</dt><dd title="${utc(p.fixTime)}">${ago(p.fixTime)}</dd></div>
 </dl>`
     : ''
@@ -28,16 +26,21 @@ ${
 </div>`;
   }).join('');
 }
+// picking a vessel in the list zooms to it; picking it again goes back to the whole fleet
+function pick(id) {
+  if (id === selected) showWholeFleet();
+  else select(id, true);
+}
 document.getElementById('list').addEventListener('click', e => {
   if (e.target.closest('a')) return;
   const el = e.target.closest('.vessel');
-  if (el) select(el.dataset.id, true);
+  if (el) pick(el.dataset.id);
 });
 document.getElementById('list').addEventListener('keydown', e => {
   const el = e.target.closest('.vessel');
   if (el && (e.key === 'Enter' || e.key === ' ')) {
     e.preventDefault();
-    select(el.dataset.id, true);
+    pick(el.dataset.id);
   }
 });
 function select(id, fly) {
@@ -60,21 +63,29 @@ document.getElementById('listBtn').onclick = e => {
   const hide = document.body.classList.toggle('list-hidden');
   e.currentTarget.setAttribute('aria-expanded', String(!hide));
 };
-// ship photos in the cards: on by default (off in marketing mode),
-// remembered per browser and per mode
-const photoToggle = document.getElementById('photoToggle');
-const PHOTO_KEY = MARKETING ? 'shipPhotosMarketing' : 'shipPhotos';
-photoToggle.checked = !MARKETING;
+// top-right checkbox: ship photos in marketing mode (off by default),
+// vessel labels in the dashboard (on by default); remembered per browser and per mode
+const cardToggle = document.getElementById('cardToggle');
+const TOGGLE_KEY = MARKETING ? 'shipPhotosMarketing' : 'vesselLabels';
+document.getElementById('cardToggleText').textContent = MARKETING
+  ? 'Ship photos'
+  : 'Vessel labels';
+cardToggle.checked = !MARKETING;
 try {
-  const saved = localStorage.getItem(PHOTO_KEY);
-  if (saved) photoToggle.checked = saved === 'on';
+  const saved = localStorage.getItem(TOGGLE_KEY);
+  if (saved) cardToggle.checked = saved === 'on';
 } catch {}
-document.documentElement.classList.toggle('no-photos', !photoToggle.checked);
-photoToggle.onchange = () => {
+function applyCardToggle() {
+  if (MARKETING)
+    document.documentElement.classList.toggle('no-photos', !cardToggle.checked);
+  else showLabels = cardToggle.checked;
+}
+applyCardToggle();
+cardToggle.onchange = () => {
   try {
-    localStorage.setItem(PHOTO_KEY, photoToggle.checked ? 'on' : 'off');
+    localStorage.setItem(TOGGLE_KEY, cardToggle.checked ? 'on' : 'off');
   } catch {}
-  document.documentElement.classList.toggle('no-photos', !photoToggle.checked);
+  applyCardToggle();
   needsPlace = true; // cards change size, so re-place them
   drawMarkers();
 };

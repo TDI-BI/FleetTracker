@@ -81,8 +81,7 @@ const FLEET = [
   },
 ];
 const pos = {};
-let selected = null,
-  hover = null;
+let selected = null; // vessel picked in the list
 
 /* ---------- formatting ---------- */
 function dm(v, isLat) {
@@ -106,12 +105,9 @@ function ago(iso) {
   if (s < 172800) return Math.round(s / 3600) + ' h ago';
   return Math.round(s / 86400) + ' d ago';
 }
-function fresh(iso) {
-  const h = (Date.now() - Date.parse(iso)) / 3.6e6;
-  if (!(h >= 0)) return ['mute', 'No fix'];
-  if (h < 6) return ['ok', 'Fresh'];
-  if (h < 48) return ['warn', 'Aging'];
-  return ['bad', 'Stale'];
+// last fix more than two days old (no fix at all doesn't count)
+function stale(iso) {
+  return (Date.now() - Date.parse(iso)) / 3.6e6 >= 48;
 }
 
 function esc(t) {
