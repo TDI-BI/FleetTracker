@@ -1,5 +1,5 @@
 /* The chart: basemap, zoom, fitting the view, place-name labels.
-   Uses: fleet.js (EMBED, pos), places.js (PLACES),
+   Uses: fleet.js (MARKETING, pos), places.js (PLACES),
    cards.js (drawMarkers, roomForCards, landFeatures, needsPlace). */
 /* ---------- chart ---------- */
 const svg = d3.select('#map'),
@@ -83,7 +83,7 @@ const zoom = d3
     drawMarkers();
   });
 
-if (EMBED)
+if (MARKETING)
   zoom.filter(e =>
     e.type === 'wheel'
       ? e.ctrlKey || e.metaKey

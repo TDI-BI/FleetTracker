@@ -35,7 +35,7 @@ Most edits are config near the top of a file:
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000/ (append `#embed` for the embed view). A server is needed because `fetch()` doesn't work on `file://` pages. Local pages call the live API; to use a local one, temporarily set `POSITIONS_API` to `http://localhost:1902/getFleetPositions`.
+Open http://localhost:8000/ (append `#marketing` for the marketing view). A server is needed because `fetch()` doesn't work on `file://` pages. Local pages call the live API; to use a local one, temporarily set `POSITIONS_API` to `http://localhost:1902/getFleetPositions`.
 
 ## API
 
@@ -63,13 +63,13 @@ WordPress Custom HTML block:
 
 ```html
 <div style="position:relative;width:100%;height:clamp(380px,60vw,640px);border-radius:6px;overflow:hidden">
-  <iframe src="https://<site-url>/#embed" title="TDI-Brooks fleet positions"
+  <iframe src="https://<site-url>/#marketing" title="TDI-Brooks fleet positions"
           style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy"></iframe>
 </div>
 ```
 
-- `#embed` hides the header and vessel list, and needs Ctrl + scroll to zoom so the map doesn't hijack page scrolling.
-- Drop `#embed` to embed the full page.
+- `#marketing` hides the header and vessel list, shows every vessel's card (ship photos off by default), and needs Ctrl + scroll to zoom so the map doesn't hijack page scrolling.
+- Drop `#marketing` to embed the full page.
 - A TDI domain (e.g. `fleet.tdi-bi.com`, set up as a CNAME to the host) keeps the embed URL stable if hosting changes.
 
 ## Map compression

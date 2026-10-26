@@ -42,6 +42,8 @@ function drawMarkers() {
         .attr('class', 'body')
         .attr('r', 5)
         .style('fill', d => `var(${d.v.c})`);
+      // invisible, steady hover/click target; the visible circles ignore the mouse
+      g.append('circle').attr('class', 'hit').attr('r', 16);
       return g;
     })
     .order()
@@ -51,7 +53,7 @@ function drawMarkers() {
   drawCards(data, w, h);
   declutter();
 }
-/* vessel cards: every vessel in embed mode, otherwise only the hovered/selected one */
+/* vessel cards: every vessel in marketing mode, otherwise only the hovered/selected one */
 function cardHtml({ v, p }) {
   return `<div class="ctext"><div class="cname">${esc(v.name)}</div>
 <div class="cline">${esc(where(p))}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div><div class="cupd">Last updated: ${ago(p.fixTime)}</div><div class="cgo">Click the dot for the vessel page ↗</div></div>
@@ -72,7 +74,8 @@ function landMask(m, mw, mh) {
   mh = Math.ceil(mh);
   // summed-area table: any box's land count in four lookups
   const sat = new Int32Array((mw + 1) * (mh + 1));
-  if (landFeatures) {
+  // (a zero-size canvas can't be read, e.g. before the chart has been laid out)
+  if (landFeatures && mw && mh) {
     const canvas = Object.assign(document.createElement('canvas'), {
       width: mw,
       height: mh,
@@ -126,7 +129,7 @@ const DIRS = [
 function placeCards(cards, data, w, h, land = viewLand(w, h)) {
   const cr = box(document.getElementById('chart'));
   const ui = [
-    ...document.querySelectorAll('.zoom, .photo-toggle, .embed-badge, .scale-note'),
+    ...document.querySelectorAll('.zoom, .photo-toggle, .marketing-badge, .scale-note'),
   ]
     .map(box)
     .filter(b => b[2] > b[0])
@@ -166,7 +169,7 @@ function drawCards(data, w, h) {
   const focus = hover || selected;
   const cards = data.filter(
     d =>
-      (EMBED || d.v.id === focus) &&
+      (MARKETING || d.v.id === focus) &&
       d.x > -50 &&
       d.x < w + 50 &&
       d.y > -50 &&
@@ -176,8 +179,14 @@ function drawCards(data, w, h) {
     .select('#callouts')
     .selectAll('.callout')
     .data(cards, d => d.v.id)
-    .join('div')
+    // in marketing mode every card is shown and is itself a link to the vessel page;
+    // in the dashboard it's a hover/select readout that ignores the mouse
+    .join(MARKETING ? 'a' : 'div')
     .attr('class', 'callout')
+    .attr('href', MARKETING ? d => d.v.tdi : null)
+    .attr('target', MARKETING ? '_blank' : null)
+    .attr('rel', MARKETING ? 'noopener' : null)
+    .attr('aria-label', MARKETING ? d => d.v.name + ' on the TDI-Brooks website' : null)
     .style('--c', d => `var(${d.v.c})`)
     .each(function (d) {
       // only rebuild when the text changes, so the photo isn't reloaded on every zoom frame

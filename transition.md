@@ -13,6 +13,6 @@ Steps to move `broussardbrandt/FleetTracker` onto this branch. In short: the AIS
 
 4. **Remove the AIS key.** Settings → Secrets and variables → Actions → delete `AISSTREAM_API_KEY`. Revoke it at aisstream.io if it's no longer needed.
 
-5. **Check the site** at `https://broussardbrandt.github.io/FleetTracker/` and `/#embed`. It should show five vessels with recent positions. The WordPress embed URL doesn't change.
+5. **Check the site** at `https://broussardbrandt.github.io/FleetTracker/` and `/#marketing`. It should show five vessels with recent positions. The WordPress embed URL must change from `#embed` to `#marketing`.
 
 See `README.md` for how the new version is put together.
