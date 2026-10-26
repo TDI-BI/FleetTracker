@@ -1,7 +1,7 @@
 /* Fleet config, shared state and text formatting. Loaded first; no dependencies. */
-const EMBED = location.hash === '#embed';
-if (EMBED) {
-  document.documentElement.classList.add('embed');
+const MARKETING = location.hash === '#marketing';
+if (MARKETING) {
+  document.documentElement.classList.add('marketing');
   document.getElementById('scaleNote').textContent = matchMedia(
     '(pointer: coarse)'
   ).matches

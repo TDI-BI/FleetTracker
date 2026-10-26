@@ -60,15 +60,19 @@ document.getElementById('listBtn').onclick = e => {
   const hide = document.body.classList.toggle('list-hidden');
   e.currentTarget.setAttribute('aria-expanded', String(!hide));
 };
-// ship photos in the cards: on by default, remembered per browser
+// ship photos in the cards: on by default (off in marketing mode),
+// remembered per browser and per mode
 const photoToggle = document.getElementById('photoToggle');
+const PHOTO_KEY = MARKETING ? 'shipPhotosMarketing' : 'shipPhotos';
+photoToggle.checked = !MARKETING;
 try {
-  photoToggle.checked = localStorage.getItem('shipPhotos') !== 'off';
+  const saved = localStorage.getItem(PHOTO_KEY);
+  if (saved) photoToggle.checked = saved === 'on';
 } catch {}
 document.documentElement.classList.toggle('no-photos', !photoToggle.checked);
 photoToggle.onchange = () => {
   try {
-    localStorage.setItem('shipPhotos', photoToggle.checked ? 'on' : 'off');
+    localStorage.setItem(PHOTO_KEY, photoToggle.checked ? 'on' : 'off');
   } catch {}
   document.documentElement.classList.toggle('no-photos', !photoToggle.checked);
   needsPlace = true; // cards change size, so re-place them
@@ -113,7 +117,7 @@ let firstFit = false;
 function setFeed(live, text) {
   document.getElementById('feed').innerHTML =
     `<span class="dot${live ? ' live' : ''}"></span><span>${esc(text)}</span>`;
-  document.getElementById('embedBadge').textContent = text;
+  document.getElementById('marketingBadge').textContent = text;
 }
 async function loadPositions() {
   try {
