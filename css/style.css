@@ -126,6 +126,15 @@ html.marketing .marketing-badge b {
   font: 700 0.95rem var(--f-display);
   display: block;
 }
+.badge-hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--card-eyebrow);
+}
+.sub {
+  color: var(--ink-2);
+  font-size: 0.88rem;
+}
 header {
   display: flex;
   flex-wrap: wrap;
@@ -145,10 +154,6 @@ h1 {
 }
 h1 span {
   color: var(--accent);
-}
-.sub {
-  color: var(--ink-2);
-  font-size: 0.88rem;
 }
 .hdr-right {
   margin-left: auto;
@@ -377,18 +382,17 @@ a:focus-visible,
   z-index: 1;
 }
 .callout.mini .ctext {
-  width: auto;
+  min-width: 0;
 }
 .callout.mini .cname {
   font-size: 0.85rem;
-  white-space: nowrap;
 }
 .callout.mini .cpos {
   margin-top: 1px;
   white-space: nowrap;
 }
 .callout .ctext {
-  width: 190px;
+  min-width: 190px;
 }
 .callout .cphoto {
   flex: none;
@@ -397,6 +401,12 @@ a:focus-visible,
 }
 .callout .cname {
   font: 700 1.05rem var(--f-display);
+  white-space: nowrap; /* keeps the arrow beside the name */
+}
+/* says the card is a link to the vessel page */
+.callout .carrow {
+  color: var(--card-eyebrow);
+  font-weight: 600;
 }
 .callout .cline {
   font-size: 0.8rem;

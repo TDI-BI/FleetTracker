@@ -51,8 +51,8 @@ function drawMarkers() {
 let showLabels = true; // dashboard vessel labels; set by the checkbox in app.js
 function cardHtml({ v, p }, mini) {
   if (mini)
-    return `<div class="ctext"><div class="cname">${esc(v.name)}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div></div>`;
-  return `<div class="ctext"><div class="cname">${esc(v.name)}</div>
+    return `<div class="ctext"><div class="cname">${esc(v.name)} <span class="carrow" aria-hidden="true">↗</span></div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div></div>`;
+  return `<div class="ctext"><div class="cname">${esc(v.name)} <span class="carrow" aria-hidden="true">↗</span></div>
 <div class="cline">${esc(where(p))}</div><div class="cpos">${dm(p.lat, true)} ${dm(p.lon, false)}</div><div class="cupd">Last updated: ${ago(p.fixTime)}</div><div class="cgo">Click for the vessel page ↗</div></div>
 <img class="cphoto" src="${v.photo}" alt="" width="440" height="${Math.round(440 / v.ar)}">`;
 }
