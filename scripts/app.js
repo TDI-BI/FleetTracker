@@ -5,7 +5,7 @@ function renderList() {
   const L = document.getElementById('list');
   L.innerHTML = FLEET.map(v => {
     const p = pos[v.id];
-    const mt = `https://www.marinetraffic.com/en/ais/details/ships/shipid:${v.mtShipId}`;
+    const mt = `https://www.marinetraffic.com/en/ais/home/shipid:${v.mtShipId}/zoom:10`;
     const vf = `https://www.vesselfinder.com/vessels/details/${v.imo}`;
     const ms = `https://www.myshiptracking.com/vessels/mmsi-${v.mmsi}`;
     return `<div class="vessel${selected === v.id ? ' sel' : ''}" style="--c:var(${v.c})" role="button" tabindex="0" data-id="${v.id}">
