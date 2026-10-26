@@ -34,8 +34,8 @@ const FLEET = [
     flag: 'Vanuatu',
     short: 'RV GYRE',
     c: '--v2',
-    photo: 'img/gyre.webp',
-    ar: 440 / 231,
+    photo: 'img/gyre_boat.webp',
+    ar: 440 / 215,
   },
   {
     id: 'proteus',
@@ -62,8 +62,8 @@ const FLEET = [
     flag: 'USA',
     short: 'RV BROOKS McCALL',
     c: '--v4',
-    photo: 'img/brooks-mccall.webp',
-    ar: 440 / 171,
+    photo: 'img/brooks_mccall_boat.webp',
+    ar: 440 / 240,
   },
   {
     id: 'miss-emma-mccall',
