@@ -16,6 +16,7 @@ const FLEET = [
     tdi: 'https://www.tdi-bi.com/r-v-nautilus/',
     name: 'RV Nautilus',
     mmsi: '577030000',
+    mtShipId: '738266', // MarineTraffic's own vessel ID (not the MMSI)
     imo: '9223708',
     flag: 'Vanuatu',
     short: 'RV NAUTILUS',
@@ -30,6 +31,7 @@ const FLEET = [
     tdi: 'https://www.tdi-bi.com/r-v-gyre/',
     name: 'RV Gyre',
     mmsi: '577275000',
+    mtShipId: '738870', // MarineTraffic's own vessel ID (not the MMSI)
     imo: '7318999',
     flag: 'Vanuatu',
     short: 'RV GYRE',
@@ -44,6 +46,7 @@ const FLEET = [
     tdi: 'https://www.tdi-bi.com/r-v-proteus/',
     name: 'RV Proteus',
     mmsi: '577207000',
+    mtShipId: '738836', // MarineTraffic's own vessel ID (not the MMSI)
     imo: '7634290',
     flag: 'Vanuatu',
     short: 'RV PROTEUS',
@@ -58,6 +61,7 @@ const FLEET = [
     tdi: 'https://www.tdi-bi.com/r-v-brooks-mccall/',
     name: 'RV Brooks McCall',
     mmsi: '338257000',
+    mtShipId: '400446', // MarineTraffic's own vessel ID (not the MMSI)
     imo: '8964367',
     flag: 'USA',
     short: 'RV BROOKS McCALL',
@@ -72,6 +76,7 @@ const FLEET = [
     tdi: 'https://www.tdi-bi.com/r-v-miss-emma-mccall/',
     name: 'RV Miss Emma McCall',
     mmsi: '577759000',
+    mtShipId: '394827', // MarineTraffic's own vessel ID (not the MMSI)
     imo: '9289659',
     flag: 'Vanuatu',
     short: 'RV MISS EMMA McCALL',
